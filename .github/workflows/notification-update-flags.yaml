@@ -1,0 +1,32 @@
+name: notification-update-flags
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - "console/assets/*-flags.json"
+
+jobs:
+  notification-update-flags:
+    - uses: actions/checkout@v2
+    - uses: technote-space/get-diff-action@v5
+      with:
+        PATTERNS: |
+          console/assets/*-flags.json
+    - name: Send email with flag changes
+    - runs-on: ubuntu-latest
+    - steps:
+      - id: diff
+      - run: |
+        for path in ${{ env.GIT_DIFF_FILTERED }}; do
+        content_new+=( `cat $path` )
+        done
+        echo "::set-output name=new::$content_new"
+        git checkout HEAD~1
+        for path in ${{ env.GIT_DIFF_FILTERED }}; do
+        content_old+=( `cat $path` )
+        done
+        echo "::set-output name=old::$content_old"
+        python3 -u .github/scripts/watchers/change-flags-email.py \
+          -n ${{ steps.diff.output.new }} -o ${{ steps.diff.output.old }}
