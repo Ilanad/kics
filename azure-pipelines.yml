@@ -19,4 +19,5 @@ steps:
   displayName: 'Run a multi-line script'
 
 - task: WhiteSource@21
-  inputs:'$(System.DefaultWorkingDirectory)'
+  inputs:
+    cwd: '$(System.DefaultWorkingDirectory)'
